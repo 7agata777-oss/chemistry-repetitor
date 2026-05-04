@@ -88,14 +88,31 @@ load_textbook()
 def search_textbook(query: str) -> str:
     if not textbook_paragraphs:
         return ""
+    # Стоп-слова (вопросительные, союзы, предлоги)
+    stop_words = {
+        "что", "такое", "как", "зачем", "почему", "кто", "где", "когда",
+        "чей", "который", "для", "это", "в", "на", "по", "с", "и", "а", "но",
+        "или", "не", "он", "она", "оно", "они", "его", "её", "их", "то",
+        "от", "до", "из", "при", "без", "под", "над", "об", "во", "со",
+        "ли", "же", "бы", "весь", "весьма", "очень", "самый", "каждый",
+        "любой", "мой", "твой", "наш", "ваш", "себя", "меня", "тебя",
+        "нам", "вам", "мне", "тебе", "нас", "вас"
+    }
     words = query.lower().split()
-    # Сначала точный поиск (все слова присутствуют)
-    res = [p for p in textbook_paragraphs if all(w in p.lower() for w in words)]
+    significant = [w for w in words if w not in stop_words]
+    # Если после удаления стоп-слов ничего не осталось, используем все слова
+    if not significant:
+        significant = words
+    # Сначала точный поиск (все значимые слова присутствуют)
+    res = [p for p in textbook_paragraphs if all(w in p.lower() for w in significant)]
     if not res:
-        # Если точных совпадений нет – ищем хотя бы одно слово
-        res = [p for p in textbook_paragraphs if any(w in p.lower() for w in words)]
+        # Если точных совпадений нет – ищем хотя бы одно значимое слово
+        res = [p for p in textbook_paragraphs if any(w in p.lower() for w in significant)]
+    # Берём не более 3 результатов
     result = "\n\n".join(res[:3]) if res else ""
     if len(result) > 3500:
+        result = result[:3500] + "... (текст обрезан, уточните вопрос)"
+    return result
         result = result[:3500] + "... (текст обрезан, уточните вопрос)"
     return result
 
