@@ -66,13 +66,8 @@ textbook_paragraphs = []
 def load_textbook():
     global textbook_paragraphs
     try:
-        with open("chemistry_textbook.pdf", "rb") as f:
-            reader = PyPDF2.PdfReader(f)
-            full = ""
-            for page in reader.pages:
-                t = page.extract_text()
-                if t:
-                    full += t + "\n"
+                with open("chemistry_textbook.txt", "r", encoding="utf-8") as f:
+                        full = f.read()
         # Берём абзацы > 50 символов, а также короткие предложения > 20 символов
         paragraphs = []
         for part in full.split("\n\n"):
