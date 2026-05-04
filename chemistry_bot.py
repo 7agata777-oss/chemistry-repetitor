@@ -1,4 +1,4 @@
-import asyncio
+аimport asyncio
 import logging
 import os
 import sqlite3
@@ -72,7 +72,17 @@ def load_textbook():
             for page in reader.pages:
                 t = page.extract_text()
                 if t: full += t + "\n"
-        textbook_paragraphs = [p.strip() for p in full.split("\n\n") if len(p.strip()) > 100]
+        paragraphs = []
+for part in full.split("\n\n"):
+    part = part.strip()
+    if len(part) > 50:
+        paragraphs.append(part)
+    else:
+        for sent in part.split("."):
+            sent = sent.strip()
+            if len(sent) > 20:
+                paragraphs.append(sent + ".")
+textbook_paragraphs = paragraphs
         logging.info(f"Учебник загружен, абзацев: {len(textbook_paragraphs)}")
     except Exception as e:
         logging.error(f"Ошибка загрузки учебника: {e}")
