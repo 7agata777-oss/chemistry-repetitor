@@ -15,7 +15,8 @@ from aiogram.types import (
     InlineKeyboardMarkup, InlineKeyboardButton
 )
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-
+from pathlib import Path
+from database import SessionLocal, User, Topic, UserProgress, Attempt
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=BOT_TOKEN)
@@ -905,6 +906,22 @@ async def main():
     site = web.TCPSite(runner, "0.0.0.0", port)
     await site.start()
     await dp.start_polling(bot)
+# ------------------- Загрузка справочников -------------------
+# --- Загрузка справочников ---
+reference_data = {}
+
+def load_reference_books(folder='data'):
+    data_path = Path(folder)
+    if not data_path.exists():
+        print(f"Папка {folder} не найдена")
+        return
+
+    for file in data_path.glob('*.txt'):
+        with open(file, 'r', encoding='utf-8') as f:
+            reference_data[file.name] = f.read()
+        print(f"Загружен: {file.name}")
+
+load_reference_books('data')
 
 if __name__ == "__main__":
     asyncio.run(main())
