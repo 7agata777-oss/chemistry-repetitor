@@ -129,7 +129,7 @@ textbook_paragraphs = []
 def load_textbook():
     global textbook_paragraphs
     try:
-        with open("chemistry_textbook.txt", "r", encoding="utf-8") as f:
+        with open("data/chemistry_textbook.txt", "r", encoding="utf-8") as f:
             full = f.read()
         paragraphs = []
         for part in full.split("\n\n"):
