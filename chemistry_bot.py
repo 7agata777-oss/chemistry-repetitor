@@ -179,10 +179,10 @@ def search_textbook(query: str) -> str:
 class Quiz(StatesGroup):
     main_menu = State()
     show_theory = State()
+    starting_test = State()        # <-- должно быть
     question_index = State()
     correct_count = State()
     task_answer = State()
-
 class OgeQuiz(StatesGroup):
     waiting_first_answer = State()
     waiting_second_answer = State()
@@ -925,7 +925,28 @@ async def show_theory(callback: types.CallbackQuery, state: FSMContext):
     await callback.answer()
 
 @dp.callback_query(F.data.startswith("test_"))
+async def start_te@dp.callback_query(F.data.startswith("test_"))
 async def start_test(callback: types.CallbackQuery, state: FSMContext):
+    current_state = await state.get_state()
+    # Если тест уже запускается, игнорируем повторные нажатия
+    if current_state == Quiz.starting_test:
+        await callback.answer("Подождите, тест уже запускается...")
+        return
+    await state.set_state(Quiz.starting_test)
+    topic_id = callback.data.split("_", 1)[1]
+    if not TOPICS[topic_id].get("questions"):
+        await callback.answer("В этой теме пока нет теста", show_alert=True)
+        await state.set_state(Quiz.main_menu)
+        return
+    await state.update_data(current_topic=topic_id, question_index=0, correct_count=0)
+    q = TOPICS[topic_id]["questions"][0]
+    await callback.message.answer(
+        f"📝 Тест по теме «{TOPICS[topic_id]['title']}»\n\nВопрос 1:\n{q['q']}",
+        parse_mode="Markdown", reply_markup=question_kb(topic_id, 0)
+    )
+    await callback.message.delete()
+    await state.set_state(Quiz.question_index)
+    await callback.answer()st(callback: types.CallbackQuery, state: FSMContext):
     topic_id = callback.data.split("_", 1)[1]
     if not TOPICS[topic_id].get("questions"):
         await callback.answer("В этой теме пока нет теста", show_alert=True)
